@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+// @ts-types="../prisma/client/index.d.ts"
+import { PrismaClient } from '../prisma/client/index.js'
 
 const prismaClientSingleton = () => {
     return new PrismaClient()

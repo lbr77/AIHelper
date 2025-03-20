@@ -1,4 +1,4 @@
-import { db } from "../db"
+import { db } from "../db.ts"
 import { Request, Response } from "express";
 export interface NewsInfo {
     id: number;
@@ -7,7 +7,16 @@ export interface NewsInfo {
     url: string;
     summary?: string;
 }
-export async function grabNews(req,res) {
+export async function getNewsById(req: Request,res: Response) {
+    const id = Number(req.params.id);
+    const news = await db.news.findUnique({where: {id}});
+    if(!news) {
+        return res.status(404).json({message: "News not found"});
+    }
+    return res.json(news);
+}
+
+export async function grabNews(req?: Request,res?: Response) {
     const newsIds: number[] = await fetch("https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty").then(res=>res.json())
     const storedNewsList = await db.news.findMany({
         where: { id: { in: newsIds } },
@@ -34,7 +43,7 @@ export async function grabNews(req,res) {
         return res.json({message: `Grabbed news`});
     }
 }
-export async function getNewsList(req, res) {
+export async function getNewsList(req: Request,res: Response) {
     const page = Number(req.query.page) || 1;
     const size = Number(req.query.size) || 5;
     const newsList = await db.news.findMany({
